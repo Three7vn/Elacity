@@ -462,7 +462,7 @@ const showResults = (data) => {
   panel.style.padding = '0';
   panel.style.isolation = 'isolate';
   panel.style.width = '240px';
-  panel.style.height = '270px';
+  panel.style.height = '340px';
   panel.style.background = 'linear-gradient(180deg, rgba(240, 242, 245, 0.85) 0%, rgba(225, 230, 240, 0.8) 100%)';
   panel.style.border = '1px solid rgba(210, 215, 225, 0.8)';
   panel.style.boxShadow = '0px 83px 33px rgba(0, 0, 0, 0.01), 0px 47px 28px rgba(0, 0, 0, 0.03), 0px 21px 21px rgba(0, 0, 0, 0.05), 0px 5px 11px rgba(0, 0, 0, 0.05)';
@@ -504,7 +504,7 @@ const showResults = (data) => {
   
   panel.style.display = 'block';
   panel.innerHTML = `
-    <div style="display:flex; flex-direction:column; align-items:flex-start; padding:12px; gap:8px; width:240px; height:270px;">
+    <div style="display:flex; flex-direction:column; align-items:flex-start; padding:12px; gap:8px; width:240px; height:340px;">
       <!-- Research Score Title -->
       <div style="width:216px; height:18px; font-weight:600; font-size:12px; line-height:18px; letter-spacing:-0.005em; color:#3B4252;">
         Research Analysis

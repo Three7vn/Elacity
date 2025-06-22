@@ -86,9 +86,10 @@ Perfect for researchers who want to start using Elacity immediately without any 
 ## 🔮 Future Work
 
 - **Mathematical Formatting**: Fix LaTeX/mathematical notation rendering in LLM summaries
+- **Enhanced Research Metrics**: Improve accuracy of Methodological Rigor, Data Quality, and Innovation Level scoring with more sophisticated evaluation criteria
 - **Section-by-Section Analysis**: Explain different paper sections as you scroll with contextual insights
 - **Interactive Q&A**: Ask follow-up questions about specific sections or concepts
-- **Related Paper Discovery**: Explore similar papers through LLM-powered recommendations and web scraping
+- **Related Paper Discovery**: Explore similar papers using Semantic Scholar API for cost-effective academic recommendations
 - **Beyond arXiv**: Support for all academic databases, journals, and dense technical documents
 
 ## 📧 Contact

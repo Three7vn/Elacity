@@ -47,7 +47,7 @@ cp ../.env.example ../.env
 ### 3. View the Website
 ```bash
 cd website
-# Open landing.html in your browser
+# Open index.html in your browser
 ```
 
 ## 🌟 Features
@@ -87,7 +87,7 @@ See individual README files for component-specific contribution guidelines.
 
 **Don't want to deal with the technical setup?** 
 
-Email **hello@elacity.com** with subject **"SETUP"** and get:
+Email **avram@beesumbodi.com** with subject **"SETUP"** and get:
 - ✅ Complete 1-on-1 setup assistance 
 - ✅ Extension installed and configured
 - ✅ AI backend running perfectly
@@ -99,9 +99,9 @@ Perfect for researchers who want to start using Elacity immediately without any 
 
 ## 📧 Contact
 
-- **Email**: hello@elacity.com
+- **Email**: avram@beesumbodi.com
 - **GitHub**: https://github.com/Three7vn/Elacity
-- **Website**: [Landing Page](./website/landing.html)
+- **Website**: [Landing Page](./website/index.html)
 
 ---
 

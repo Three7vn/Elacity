@@ -1,0 +1,44 @@
+{
+    "manifest_version": 3,
+    "name": "Elacity Research Copilot",
+    "version": "1.0",
+    "description": "Your real-time research copilot for academic papers and arXiv preprints.",
+    "action": {
+        "default_popup": "src/popup/index.html",
+        "default_icon": {
+                "16": "elacity.png",
+    "48": "elacity.png",
+    "128": "elacity.png"
+        }
+    },
+    "background": {
+        "service_worker": "src/background.js"
+    },
+    "icons": {
+        "16": "elacity.png",
+        "48": "elacity.png",
+        "128": "elacity.png"
+    },
+    "permissions": [
+        "activeTab",
+        "storage",
+        "tabs"
+    ],
+    "host_permissions": [
+        "*://arxiv.org/pdf/*",
+        "*://*.arxiv.org/pdf/*",
+        "http://localhost:3013/*"
+    ],
+    "content_scripts": [
+        {
+            "matches": ["*://arxiv.org/pdf/*", "*://*.arxiv.org/pdf/*"],
+            "js": ["contentScript.js"]
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": ["elacity.png"],
+            "matches": ["https://arxiv.org/*"]
+        }
+    ]
+}

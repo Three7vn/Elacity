@@ -78,7 +78,7 @@ Email **avram@beesumbodi.com** with subject **"SETUP"** and get:
 - ✅ Extension installed and configured
 - ✅ AI backend running perfectly
 - ✅ Personal walkthrough and training
-- ✅ **Only $99** - Setup guaranteed within 24 hours
+- ✅ **Only $99**, or $59 if you're a student - Setup guaranteed within 24 hours
 - ✅ Response within a few hours of your email
 
 Perfect for researchers who want to start using Elacity immediately without any technical hassle.

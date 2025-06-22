@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elacity - Real-time Research Copilot</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: white;
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(248, 248, 248, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(200, 200, 200, 0.3);
+        }
+
+        .navbar-logo {
+            height: 40px;
+            width: auto;
+        }
+
+        .navbar-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .navbar-link {
+            color: #2d2d2d;
+            text-decoration: none;
+            font-weight: 400;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-link:hover {
+            color: #555;
+        }
+
+        .container {
+            max-width: 800px;
+            padding: 140px 40px 60px 40px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #2d2d2d;
+            margin-bottom: 1rem;
+        }
+
+        .tagline {
+            font-size: 1.3rem;
+            font-weight: 400;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .description {
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: #444;
+            margin-bottom: 3rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: left;
+        }
+
+        .description p {
+            margin-bottom: 1.2rem;
+        }
+
+        .description p:last-child {
+            margin-bottom: 0;
+        }
+
+        .highlight {
+            background: #555;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .github-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #000;
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 3px;
+            font-weight: 400;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border: 1px solid #000;
+        }
+
+        .github-link:hover {
+            background: #333;
+        }
+
+        .github-icon {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin: 3rem 0;
+            text-align: left;
+        }
+
+        .feature {
+            padding: 0;
+        }
+
+        .feature-title {
+            font-weight: 600;
+            color: #2d2d2d;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .feature p {
+            color: #666;
+            font-weight: 400;
+        }
+
+        .faq-section {
+            margin: 6rem 0 4rem 0;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .faq-title {
+            font-size: 1.26rem;
+            font-weight: 600;
+            color: #2d2d2d;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid #eee;
+            margin-bottom: 0;
+        }
+
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 0;
+            cursor: pointer;
+            font-size: 0.77rem;
+            font-weight: 500;
+            color: #2d2d2d;
+            transition: color 0.3s ease;
+        }
+
+        .faq-question:hover {
+            color: #555;
+        }
+
+        .faq-toggle {
+            font-size: 1.05rem;
+            font-weight: 300;
+            transition: transform 0.3s ease;
+        }
+
+        .faq-toggle.active {
+            transform: rotate(45deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .faq-answer.active {
+            max-height: 200px;
+            padding-bottom: 1.5rem;
+        }
+
+        .faq-answer p {
+            color: #666;
+            line-height: 1.6;
+            margin: 0;
+            font-size: 0.77rem;
+        }
+
+        .contact-section {
+            margin: 4rem 0;
+            text-align: center;
+        }
+
+        .contact-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #2d2d2d;
+            margin-bottom: 1rem;
+        }
+
+        .contact-description {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .contact-email {
+            color: #2d2d2d;
+            font-size: 1.2rem;
+            font-weight: 500;
+            text-decoration: none;
+            border-bottom: 2px solid transparent;
+            transition: border-bottom-color 0.3s ease;
+        }
+
+        .contact-email:hover {
+            border-bottom-color: #2d2d2d;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 10px 20px;
+            }
+            
+            .navbar-logo {
+                height: 35px;
+            }
+            
+            .navbar-links {
+                gap: 20px;
+            }
+            
+            .navbar-link {
+                font-size: 0.9rem;
+            }
+            
+            .container {
+                padding: 120px 25px 40px 25px;
+            }
+            
+            .logo {
+                font-size: 2.8rem;
+            }
+            
+            .tagline {
+                font-size: 1.1rem;
+            }
+            
+            .description {
+                font-size: 1rem;
+            }
+            
+            .features {
+                text-align: center;
+            }
+        }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+        <img src="elacity.png" alt="Elacity Logo" class="navbar-logo">
+        <div class="navbar-links">
+            <a href="#faq" class="navbar-link">FAQs</a>
+            <a href="#contact" class="navbar-link">Contact</a>
+            <a href="https://github.com/Three7vn/Elacity" class="navbar-link" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <h1 class="logo">Read Academic Papers 32x Faster, and Intelligently</h1>
+        <p class="tagline">Introducing Elacity<br>Your Real-time Research Copilot</p>
+        
+        <div class="description">
+            <p>Elacity is a <span class="highlight">browser-native assistant</span> that activates as you read academic papers, arXiv preprints, or scientific articles.</p>
+            
+            <p>It parses full content (even embedded PDFs), extracting key findings within the browser experience.</p>
+            
+            <p>More than just a summarizer, Elacity helps you <span class="highlight">read faster, critique deeper, and think clearer</span>. It serves as a cognitive extension in your browsing experience.</p>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <div class="feature-title">Faster Reading</div>
+                <p>Real-time analysis accelerates your reading speed through instant content parsing and key insight extraction</p>
+            </div>
+            <div class="feature">
+                <div class="feature-title">Deeper Insights</div>
+                <p>Goes beyond summarization to provide critical analysis and contextual understanding of academic content</p>
+            </div>
+            <div class="feature">
+                <div class="feature-title">Cognitive Extension</div>
+                <p>Seamlessly integrates into your browsing experience as an intelligent research companion</p>
+            </div>
+        </div>
+
+        <div id="faq" class="faq-section">
+            <h2 class="faq-title">Frequently Asked Questions (FAQs)</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <span>What is Elacity?</span>
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>Elacity is a real-time AI browser extension that helps you read academic papers faster and more intelligently. It parses content, extracts key insights, and provides contextual analysis as you browse research papers.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <span>How does Elacity work?</span>
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>Elacity activates automatically when you visit academic papers, arXiv preprints, or scientific articles. It uses AI to parse the content in real-time, highlighting key findings and providing instant insights to accelerate your reading comprehension.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <span>What types of documents does Elacity support?</span>
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    <p>Elacity currently works with arXiv papers and preprints, with plans to expand support to other academic platforms and scientific articles. It seamlessly integrates with your browser to provide real-time analysis of research content.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="contact" class="contact-section">
+            <h2 class="contact-title">Contact Us</h2>
+            <p class="contact-description">Customer Support, Report Bugs, and General Inquiries</p>
+            <a href="mailto:hello@elacity.com" class="contact-email">hello@elacity.com</a>
+        </div>
+
+        <a href="https://github.com/Three7vn/Elacity" class="github-link" target="_blank" rel="noopener noreferrer">
+            <svg class="github-icon" viewBox="0 0 24 24">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            View on GitHub
+        </a>
+    </div>
+
+    <script>
+        function toggleFAQ(element) {
+            const answer = element.nextElementSibling;
+            const toggle = element.querySelector('.faq-toggle');
+            
+            // Close all other FAQs
+            document.querySelectorAll('.faq-answer.active').forEach(activeAnswer => {
+                if (activeAnswer !== answer) {
+                    activeAnswer.classList.remove('active');
+                    activeAnswer.previousElementSibling.querySelector('.faq-toggle').classList.remove('active');
+                }
+            });
+            
+            // Toggle current FAQ
+            answer.classList.toggle('active');
+            toggle.classList.toggle('active');
+        }
+    </script>
+</body>
+</html> 

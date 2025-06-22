@@ -83,9 +83,19 @@ Each folder has its own development environment:
 
 See individual README files for component-specific contribution guidelines.
 
-## 📝 License
+## 🛠️ Professional Setup Service
 
-Open source - see [LICENSE](./LICENSE) for details.
+**Don't want to deal with the technical setup?** 
+
+Email **hello@elacity.com** with subject **"SETUP"** and get:
+- ✅ Complete 1-on-1 setup assistance 
+- ✅ Extension installed and configured
+- ✅ AI backend running perfectly
+- ✅ Personal walkthrough and training
+- ✅ **Only $99** - Setup guaranteed within 24 hours
+- ✅ Response within a few hours of your email
+
+Perfect for researchers who want to start using Elacity immediately without any technical hassle.
 
 ## 📧 Contact
 

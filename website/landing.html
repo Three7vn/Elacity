@@ -61,10 +61,15 @@
         }
 
         .container {
-            max-width: 800px;
-            padding: 140px 40px 60px 40px;
-            margin: 0 auto;
+            padding: 140px 0 60px 0;
+            margin: 0;
             text-align: center;
+        }
+
+        .intro-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 40px;
         }
 
         .logo {
@@ -86,9 +91,6 @@
             font-weight: 400;
             color: #444;
             margin-bottom: 3rem;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
             text-align: left;
         }
 
@@ -133,28 +135,67 @@
             fill: currentColor;
         }
 
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 30px;
-            margin: 3rem 0;
-            text-align: left;
+        .demo-section {
+            margin: 4rem 0;
         }
 
-        .feature {
+        .demo-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8rem;
+            width: 100%;
             padding: 0;
         }
 
-        .feature-title {
-            font-weight: 600;
-            color: #2d2d2d;
-            margin-bottom: 8px;
-            font-size: 1.1rem;
+        .demo-item {
+            display: flex;
+            align-items: center;
+            gap: 6rem;
+            text-align: left;
+            min-height: 60vh;
+            padding: 0 1rem;
         }
 
-        .feature p {
+        .demo-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .demo-content {
+            flex: 1;
+        }
+
+        .demo-content h3 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #2d2d2d;
+            margin-bottom: 1.2rem;
+        }
+
+        .demo-content p {
+            color: #555;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .demo-caption {
             color: #666;
-            font-weight: 400;
+            font-size: 0.9rem;
+            font-style: italic;
+            margin-top: 0.8rem;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .demo-image {
+            flex: 2.0;
+            min-width: 605px;
+        }
+
+        .demo-image img {
+            width: 101%;
+            height: auto;
+            min-height: 403px;
         }
 
         .faq-section {
@@ -285,8 +326,26 @@
                 font-size: 1rem;
             }
             
-            .features {
+            .demo-title {
+                font-size: 1.8rem;
+            }
+            
+            .demo-item {
+                flex-direction: column !important;
+                gap: 2rem;
                 text-align: center;
+            }
+            
+            .demo-content {
+                max-width: 100%;
+            }
+            
+            .demo-content h3 {
+                font-size: 1.5rem;
+            }
+            
+            .demo-image {
+                max-width: 100%;
             }
         }
     </style>
@@ -302,29 +361,64 @@
     </nav>
     
     <div class="container">
-        <h1 class="logo">Read Academic Papers 32x Faster, and Intelligently</h1>
-        <p class="tagline">Introducing Elacity<br>Your Real-time Research Copilot</p>
-        
-        <div class="description">
-            <p>Elacity is a <span class="highlight">browser-native assistant</span> that activates as you read academic papers, arXiv preprints, or scientific articles.</p>
+        <div class="intro-content">
+            <h1 class="logo">Read Academic Papers 32x Faster, and Intelligently</h1>
+            <p class="tagline">Introducing Elacity<br>Your Real-time Research Copilot</p>
             
-            <p>It parses full content (even embedded PDFs), extracting key findings within the browser experience.</p>
-            
-            <p>More than just a summarizer, Elacity helps you <span class="highlight">read faster, critique deeper, and think clearer</span>. It serves as a cognitive extension in your browsing experience.</p>
+            <div class="description">
+                <p>Elacity is a <span class="highlight">browser-native assistant</span> that activates as you read academic papers, arXiv preprints, or scientific articles.</p>
+                
+                <p>It parses full content (even embedded PDFs), extracting key findings within the browser experience.</p>
+                
+                <p>More than just a summarizer, Elacity helps you <span class="highlight">read faster, critique deeper, and think clearer</span>. It serves as a cognitive extension in your browsing experience.</p>
+            </div>
         </div>
 
-        <div class="features">
-            <div class="feature">
-                <div class="feature-title">Faster Reading</div>
-                <p>Real-time analysis accelerates your reading speed through instant content parsing and key insight extraction</p>
-            </div>
-            <div class="feature">
-                <div class="feature-title">Deeper Insights</div>
-                <p>Goes beyond summarization to provide critical analysis and contextual understanding of academic content</p>
-            </div>
-            <div class="feature">
-                <div class="feature-title">Cognitive Extension</div>
-                <p>Seamlessly integrates into your browsing experience as an intelligent research companion</p>
+        <div class="demo-section">
+            <div class="demo-grid">
+                <div class="demo-item">
+                    <div class="demo-content">
+                        <h3>Instant Analysis</h3>
+                        <p>Elacity activates automatically when you visit arXiv papers, instantly analyzing the content and providing a floating analysis panel with key insights.</p>
+                    </div>
+                    <div class="demo-image">
+                        <img src="elacity-thinking.png" alt="Elacity thinking and analyzing paper" />
+                        <p class="demo-caption">Like having 100 research analysts in your browser, Elacity spots insights you'd never notice in real-time.</p>
+                    </div>
+                </div>
+
+                <div class="demo-item">
+                    <div class="demo-content">
+                        <h3>Smart Scoring</h3>
+                        <p>Get instant quality scores for methodological rigor, data quality, and innovation level - helping you quickly assess paper value.</p>
+                    </div>
+                    <div class="demo-image">
+                        <img src="elacity-scores.png" alt="Research analysis with quality scores" />
+                        <p class="demo-caption">Quality at a glance - Elacity helps you identify high-quality research before you invest time reading.</p>
+                    </div>
+                </div>
+
+                <div class="demo-item">
+                    <div class="demo-content">
+                        <h3>Detailed Insights</h3>
+                        <p>Access comprehensive summaries, key findings, methodology strengths, and potential limitations in an easy-to-scan format.</p>
+                    </div>
+                    <div class="demo-image">
+                        <img src="elacity-insights.png" alt="Detailed research insights panel" />
+                        <p class="demo-caption">Read papers 32x faster by focusing on what matters most - the insights that drive your research forward.</p>
+                    </div>
+                </div>
+
+                <div class="demo-item">
+                    <div class="demo-content">
+                        <h3>Explain Like I'm 12</h3>
+                        <p>Switch to "Explain Like I'm 12" mode to get complex concepts explained in simple, accessible language with analogies and everyday examples.</p>
+                    </div>
+                    <div class="demo-image">
+                        <img src="elacity-eli12.png" alt="ELI12 mode with simplified explanations" />
+                        <p class="demo-caption">Perfect for understanding papers outside your expertise or explaining research to broader audiences.</p>
+                    </div>
+                </div>
             </div>
         </div>
 

@@ -1,5 +1,5 @@
-// Content script for arXiv papers - Elacity Research Copilot
-console.log("Elacity extension loaded on arXiv paper page", window.location.href);
+// Content script for academic papers - Elacity Research Copilot
+console.log("Elacity extension loaded on academic paper page", window.location.href);
 
 // Add Google Fonts links to document head
 const addFontLinks = () => {
@@ -779,7 +779,7 @@ window.addEventListener('load', () => {
 // Store the current URL so popup can access it
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log("Message received in content script:", request);
-  if (request.action === "getArxivUrl") {
+  if (request.action === "getPaperUrl") {
     sendResponse({ url: window.location.href });
   }
   return true;

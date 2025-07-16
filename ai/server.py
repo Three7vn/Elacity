@@ -44,6 +44,20 @@ def analyze_paper():
 
         # Analyze the paper
         result = analyze_paper_with_openai(url, analysis_type, eli12)
+        
+        # Debug: Print the raw result
+        print(f"DEBUG: Raw OpenAI result: {repr(result)}")
+        print(f"DEBUG: Result type: {type(result)}")
+        print(f"DEBUG: Result length: {len(result) if result else 'None'}")
+
+        # Check if result is empty or None
+        if not result or result.strip() == "":
+            print("DEBUG: Empty result from OpenAI API")
+            return jsonify({
+                'title': 'Analysis Error',
+                'error': 'OpenAI API returned empty response',
+                'raw_analysis': result
+            })
 
         # Strip all markdown and parse JSON - BULLETPROOF approach
         clean_result = result.strip()
@@ -61,14 +75,19 @@ def analyze_paper():
         # Strip whitespace and newlines
         clean_result = clean_result.strip()
         
+        print(f"DEBUG: Clean result: {repr(clean_result)}")
+        print(f"DEBUG: Clean result length: {len(clean_result)}")
+        
         try:
             parsed_result = json.loads(clean_result)
             return jsonify(parsed_result)
         except json.JSONDecodeError as e:
             print(f"JSON parsing failed: {e}")
+            print(f"DEBUG: Failed to parse: {repr(clean_result[:200])}")
             return jsonify({
                 'title': 'Analysis Complete',
                 'raw_analysis': result,
+                'clean_result': clean_result,
                 'error': 'Could not parse analysis as structured data'
             })
 

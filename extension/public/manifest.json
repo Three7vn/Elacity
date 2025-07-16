@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Elacity Research Copilot",
     "version": "1.0",
-    "description": "Your real-time research copilot for academic papers and arXiv preprints.",
+    "description": "Your real-time research copilot for academic papers from arXiv, PhilPapers, Harvard Math, and personal essays.",
     "action": {
         "default_popup": "src/popup/index.html",
         "default_icon": {
@@ -27,18 +27,39 @@
     "host_permissions": [
         "*://arxiv.org/pdf/*",
         "*://*.arxiv.org/pdf/*",
-        "http://localhost:3013/*"
+        "*://philpapers.org/archive/*",
+        "*://*.philpapers.org/archive/*",
+        "*://people.math.harvard.edu/*",
+        "*://*.people.math.harvard.edu/*",
+        "*://abrahamdada.com/essays/*",
+        "*://*.abrahamdada.com/essays/*",
+        "http://localhost:3013/*",
+        "http://localhost:8000/*"
     ],
     "content_scripts": [
         {
-            "matches": ["*://arxiv.org/pdf/*", "*://*.arxiv.org/pdf/*"],
+            "matches": [
+                "*://arxiv.org/pdf/*", 
+                "*://*.arxiv.org/pdf/*",
+                "*://philpapers.org/archive/*",
+                "*://*.philpapers.org/archive/*",
+                "*://people.math.harvard.edu/*",
+                "*://*.people.math.harvard.edu/*",
+                "*://abrahamdada.com/essays/*",
+                "*://*.abrahamdada.com/essays/*"
+            ],
             "js": ["contentScript.js"]
         }
     ],
     "web_accessible_resources": [
         {
             "resources": ["elacity.png"],
-            "matches": ["https://arxiv.org/*"]
+            "matches": [
+                "https://arxiv.org/*",
+                "https://philpapers.org/*",
+                "https://people.math.harvard.edu/*",
+                "https://abrahamdada.com/*"
+            ]
         }
     ]
 }

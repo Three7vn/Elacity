@@ -13,6 +13,7 @@ from urllib.parse import urlparse
 from dotenv import load_dotenv
 from openai import OpenAI
 from PyPDF2 import PdfReader
+from bs4 import BeautifulSoup
 
 # Load environment variables from root directory
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
@@ -21,9 +22,10 @@ load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 
-def extract_arxiv_id(url):
-    """Extract arXiv ID from URL."""
-    patterns = [
+def extract_paper_id(url):
+    """Extract paper ID from various sources."""
+    # arXiv patterns
+    arxiv_patterns = [
         r'arxiv\.org/abs/(\d+\.\d+)',
         r'arxiv\.org/pdf/(\d+\.\d+)',
         r'arxiv\.org/abs/(cs/\d+)',
@@ -32,15 +34,43 @@ def extract_arxiv_id(url):
         r'(cs/\d+)'
     ]
     
-    for pattern in patterns:
+    for pattern in arxiv_patterns:
         match = re.search(pattern, url)
         if match:
-            return match.group(1)
+            return f"arXiv:{match.group(1)}"
+    
+    # PhilPapers patterns
+    if 'philpapers.org' in url:
+        # Extract paper ID from PhilPapers URLs
+        phil_patterns = [
+            r'philpapers\.org/archive/([A-Z0-9]+)',
+            r'philpapers\.org/rec/([A-Z0-9]+)',
+            r'philpapers\.org/browse/([A-Z0-9]+)'
+        ]
+        for pattern in phil_patterns:
+            match = re.search(pattern, url)
+            if match:
+                return f"PhilPapers:{match.group(1)}"
+    
+    # Harvard Math patterns
+    if 'people.math.harvard.edu' in url:
+        # Extract author/paper info from Harvard URLs
+        harvard_match = re.search(r'people\.math\.harvard\.edu/~([^/]+)', url)
+        if harvard_match:
+            return f"Harvard:{harvard_match.group(1)}"
+    
+    # Personal site patterns
+    if 'abrahamdada.com/essays' in url:
+        # Extract essay ID from personal site
+        essay_match = re.search(r'abrahamdada\.com/essays/([^/]+)', url)
+        if essay_match:
+            return f"Essay:{essay_match.group(1)}"
+    
     return None
 
 
 def fetch_arxiv_paper_text(url):
-    """Fetch and extract text from arXiv paper."""
+    """Fetch and extract text from arXiv paper PDF."""
     try:
         # Convert to PDF URL if it's an abstract URL
         if '/abs/' in url:
@@ -73,7 +103,367 @@ def fetch_arxiv_paper_text(url):
         return text
         
     except Exception as e:
-        print(f"Error fetching paper: {e}")
+        print(f"Error fetching arXiv paper: {e}")
+        return None
+
+
+def fetch_philpapers_text(url):
+    """Fetch and extract text from PhilPapers page or PDF."""
+    try:
+        # Check if this is a PDF URL
+        if url.endswith('.pdf'):
+            # Handle PDF directly
+            response = requests.get(url, timeout=30)
+            response.raise_for_status()
+            
+            # Extract text from PDF
+            pdf_file = io.BytesIO(response.content)
+            pdf_reader = PdfReader(pdf_file)
+            
+            text = ""
+            for page in pdf_reader.pages:
+                text += page.extract_text() + "\n"
+            
+            # Clean up the text
+            text = re.sub(r'\s+', ' ', text)  # Replace multiple whitespace with single space
+            text = text.strip()
+            
+            # Limit text length to avoid token limits (keep first ~15000 chars)
+            if len(text) > 15000:
+                text = text[:15000] + "... [truncated]"
+            
+            return text
+        
+        # Handle HTML page
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        response = requests.get(url, headers=headers, timeout=30)
+        response.raise_for_status()
+        
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # Extract title
+        title = ""
+        title_elem = soup.find('h1') or soup.find('title')
+        if title_elem:
+            title = title_elem.get_text().strip()
+        
+        # Extract abstract or description
+        abstract = ""
+        abstract_selectors = [
+            '.abstract',
+            '.description',
+            '.summary',
+            '[class*="abstract"]',
+            '[class*="description"]'
+        ]
+        
+        for selector in abstract_selectors:
+            abstract_elem = soup.select_one(selector)
+            if abstract_elem:
+                abstract = abstract_elem.get_text().strip()
+                break
+        
+        # Extract main content
+        content = ""
+        content_selectors = [
+            '.content',
+            '.main-content',
+            '.paper-content',
+            '.entry-content',
+            'main',
+            'article'
+        ]
+        
+        for selector in content_selectors:
+            content_elem = soup.select_one(selector)
+            if content_elem:
+                content = content_elem.get_text().strip()
+                break
+        
+        # If no specific content found, get all paragraphs
+        if not content:
+            paragraphs = soup.find_all('p')
+            content = '\n'.join([p.get_text().strip() for p in paragraphs if p.get_text().strip()])
+        
+        # Combine all text
+        full_text = f"Title: {title}\n\nAbstract: {abstract}\n\nContent: {content}"
+        
+        # Clean up the text
+        full_text = re.sub(r'\s+', ' ', full_text)
+        full_text = full_text.strip()
+        
+        # Limit text length
+        if len(full_text) > 15000:
+            full_text = full_text[:15000] + "... [truncated]"
+        
+        return full_text
+        
+    except Exception as e:
+        print(f"Error fetching PhilPapers content: {e}")
+        return None
+
+
+def fetch_harvard_paper_text(url):
+    """Fetch and extract text from Harvard Math department page."""
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        # If URL is a direct PDF, extract from PDF immediately
+        if url.lower().endswith('.pdf'):
+            try:
+                pdf_response = requests.get(url, headers=headers, timeout=30)
+                pdf_response.raise_for_status()
+                
+                pdf_file = io.BytesIO(pdf_response.content)
+                pdf_reader = PdfReader(pdf_file)
+                
+                pdf_text = ""
+                for page in pdf_reader.pages:
+                    pdf_text += page.extract_text() + "\n"
+                
+                if pdf_text.strip():
+                    # Clean up the text
+                    pdf_text = re.sub(r'\s+', ' ', pdf_text)
+                    pdf_text = pdf_text.strip()
+                    
+                    # Limit text length
+                    if len(pdf_text) > 15000:
+                        pdf_text = pdf_text[:15000] + "... [truncated]"
+                    
+                    return pdf_text
+            except Exception as pdf_e:
+                print(f"Error fetching PDF directly from Harvard: {pdf_e}")
+                return None
+        
+        # Otherwise, try HTML parsing first
+        response = requests.get(url, headers=headers, timeout=30)
+        response.raise_for_status()
+        
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # Extract title
+        title = ""
+        title_elem = soup.find('h1') or soup.find('title')
+        if title_elem:
+            title = title_elem.get_text().strip()
+        
+        # Extract paper content
+        content = ""
+        
+        # Look for common academic page structures
+        content_selectors = [
+            '.paper',
+            '.abstract',
+            '.content',
+            '.main',
+            'main',
+            'article',
+            '.publication',
+            '.research'
+        ]
+        
+        for selector in content_selectors:
+            content_elem = soup.select_one(selector)
+            if content_elem:
+                content = content_elem.get_text().strip()
+                break
+        
+        # If no specific content found, get all paragraphs
+        if not content:
+            paragraphs = soup.find_all('p')
+            content = '\n'.join([p.get_text().strip() for p in paragraphs if p.get_text().strip()])
+        
+        # Look for PDF links and try to extract from PDF if HTML content is insufficient
+        pdf_links = soup.find_all('a', href=re.compile(r'\.pdf$', re.I))
+        if pdf_links and not content:
+            pdf_url = pdf_links[0]['href']
+            if not pdf_url.startswith('http'):
+                pdf_url = requests.compat.urljoin(url, pdf_url)
+            
+            try:
+                pdf_response = requests.get(pdf_url, headers=headers, timeout=30)
+                pdf_response.raise_for_status()
+                
+                pdf_file = io.BytesIO(pdf_response.content)
+                pdf_reader = PdfReader(pdf_file)
+                
+                pdf_text = ""
+                for page in pdf_reader.pages:
+                    pdf_text += page.extract_text() + "\n"
+                
+                if pdf_text.strip():
+                    content = pdf_text
+            except Exception as pdf_e:
+                print(f"Error fetching PDF from Harvard page: {pdf_e}")
+        
+        # Combine all text
+        full_text = f"Title: {title}\n\nContent: {content}"
+        
+        # Clean up the text
+        full_text = re.sub(r'\s+', ' ', full_text)
+        full_text = full_text.strip()
+        
+        # Limit text length
+        if len(full_text) > 15000:
+            full_text = full_text[:15000] + "... [truncated]"
+        
+        return full_text
+        
+    except Exception as e:
+        print(f"Error fetching Harvard content: {e}")
+        return None
+
+
+def fetch_personal_essay_text(url):
+    """Fetch and extract text from personal essay site."""
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        response = requests.get(url, headers=headers, timeout=30)
+        response.raise_for_status()
+        
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # Extract title
+        title = ""
+        title_elem = soup.find('h1') or soup.find('title')
+        if title_elem:
+            title = title_elem.get_text().strip()
+        
+        # Extract essay content
+        content = ""
+        
+        # Look for common blog/essay structures
+        content_selectors = [
+            '.essay',
+            '.post-content',
+            '.entry-content',
+            '.article-content',
+            '.content',
+            'main',
+            'article',
+            '.post',
+            '.blog-post'
+        ]
+        
+        for selector in content_selectors:
+            content_elem = soup.select_one(selector)
+            if content_elem:
+                content = content_elem.get_text().strip()
+                break
+        
+        # If no specific content found, get all paragraphs
+        if not content:
+            paragraphs = soup.find_all('p')
+            content = '\n'.join([p.get_text().strip() for p in paragraphs if p.get_text().strip()])
+        
+        # Combine all text
+        full_text = f"Title: {title}\n\nContent: {content}"
+        
+        # Clean up the text
+        full_text = re.sub(r'\s+', ' ', full_text)
+        full_text = full_text.strip()
+        
+        # Limit text length
+        if len(full_text) > 15000:
+            full_text = full_text[:15000] + "... [truncated]"
+        
+        return full_text
+        
+    except Exception as e:
+        print(f"Error fetching personal essay: {e}")
+        return None
+
+
+def fetch_paper_text(url):
+    """Fetch and extract text from various paper sources."""
+    try:
+        # Determine source type and use appropriate fetcher
+        if 'arxiv.org' in url:
+            return fetch_arxiv_paper_text(url)
+        elif 'philpapers.org' in url:
+            return fetch_philpapers_text(url)
+        elif 'people.math.harvard.edu' in url:
+            return fetch_harvard_paper_text(url)
+        elif 'abrahamdada.com/essays' in url:
+            return fetch_personal_essay_text(url)
+        else:
+            # Generic web page fetcher for other sources
+            print(f"DEBUG: Unknown source, attempting generic web fetch for: {url}")
+            return fetch_generic_web_text(url)
+            
+    except Exception as e:
+        print(f"Error in fetch_paper_text: {e}")
+        return None
+
+
+def fetch_generic_web_text(url):
+    """Generic web page text fetcher for unknown sources."""
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        response = requests.get(url, headers=headers, timeout=30)
+        response.raise_for_status()
+        
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # Extract title
+        title = ""
+        title_elem = soup.find('h1') or soup.find('title')
+        if title_elem:
+            title = title_elem.get_text().strip()
+        
+        # Extract main content
+        content = ""
+        
+        # Try common content selectors
+        content_selectors = [
+            'main',
+            'article',
+            '.content',
+            '.main-content',
+            '.post-content',
+            '.entry-content',
+            '.article-content',
+            '#content',
+            '#main'
+        ]
+        
+        for selector in content_selectors:
+            content_elem = soup.select_one(selector)
+            if content_elem:
+                content = content_elem.get_text().strip()
+                break
+        
+        # If no specific content found, get all paragraphs
+        if not content:
+            paragraphs = soup.find_all('p')
+            content = '\n'.join([p.get_text().strip() for p in paragraphs if p.get_text().strip()])
+        
+        # Combine all text
+        full_text = f"Title: {title}\n\nContent: {content}"
+        
+        # Clean up the text
+        full_text = re.sub(r'\s+', ' ', full_text)
+        full_text = full_text.strip()
+        
+        # Limit text length
+        if len(full_text) > 15000:
+            full_text = full_text[:15000] + "... [truncated]"
+        
+        return full_text
+        
+    except Exception as e:
+        print(f"Error fetching generic web content: {e}")
         return None
 
 
@@ -81,10 +471,10 @@ def fetch_arxiv_paper_text(url):
 def generate_analysis_prompt(url, eli12=False):
     """Generate analysis prompt for academic paper URL that matches the extension UI structure."""
     
-    arxiv_id = extract_arxiv_id(url) if 'arxiv' in url else None
+    paper_id = extract_paper_id(url)
     
-    # Fetch the actual paper text
-    paper_text = fetch_arxiv_paper_text(url) if 'arxiv' in url else None
+    # Fetch the actual paper text from any supported source
+    paper_text = fetch_paper_text(url)
     
     eli12_instruction = """
     
@@ -95,7 +485,7 @@ When providing the summary and key insights, also include ELI12 versions that ex
     if paper_text:
         print(f"DEBUG: Successfully fetched paper text, length: {len(paper_text)}")
         print(f"DEBUG: First 200 chars: {paper_text[:200]}")
-        arxiv_id_value = arxiv_id if arxiv_id else '[Not arXiv paper]'
+        paper_id_value = paper_id if paper_id else '[Unknown source]'
         
         base_prompt = """You are Elacity, an AI research copilot that helps users read academic papers faster and more intelligently. 
 
@@ -109,7 +499,7 @@ CRITICAL: Respond with ONLY raw JSON. Do NOT use markdown code blocks. Do NOT us
 {{
   "title": "[Extract exact paper title]",
   "authors": "[REQUIRED: First author's name] et al." or "[Full author list if 3 or fewer authors]",
-  "arxiv_id": "{arxiv_id_value}",
+  "paper_id": "{paper_id_value}",
   "scores": {{
     "methodological_rigor": [Score 1-10],
     "data_quality": [Score 1-10], 
@@ -158,10 +548,10 @@ CRITICAL: Respond with ONLY raw JSON. Do NOT use markdown code blocks. Do NOT us
 
 Focus on accuracy and providing actionable insights that help researchers quickly understand the paper's value, methodology, and limitations."""
         
-        prompt = base_prompt.format(eli12_instruction=eli12_instruction, paper_text=paper_text, arxiv_id_value=arxiv_id_value)
+        prompt = base_prompt.format(eli12_instruction=eli12_instruction, paper_text=paper_text, paper_id_value=paper_id_value)
     else:
         print(f"DEBUG: Failed to fetch paper text for URL: {url}")
-        arxiv_id_value = arxiv_id if arxiv_id else '[Not arXiv paper]'
+        paper_id_value = paper_id if paper_id else '[Unknown source]'
         
         # Use string formatting to avoid f-string issues with nested braces
         base_prompt = """You are Elacity, an AI research copilot that helps users read academic papers faster and more intelligently. 
@@ -175,7 +565,7 @@ CRITICAL: Respond with ONLY raw JSON. Do NOT use markdown code blocks. Do NOT us
 {{
   "title": "[Extract exact paper title]",
   "authors": "[REQUIRED: First author's name] et al." or "[Full author list if 3 or fewer authors]",
-  "arxiv_id": "{arxiv_id_value}",
+  "paper_id": "{paper_id_value}",
   "scores": {{
     "methodological_rigor": [Score 1-10],
     "data_quality": [Score 1-10], 
@@ -224,7 +614,7 @@ CRITICAL: Respond with ONLY raw JSON. Do NOT use markdown code blocks. Do NOT us
 
 Focus on accuracy and providing actionable insights that help researchers quickly understand the paper's value, methodology, and limitations."""
 
-        prompt = base_prompt.format(url=url, eli12_instruction=eli12_instruction, arxiv_id_value=arxiv_id_value)
+        prompt = base_prompt.format(url=url, eli12_instruction=eli12_instruction, paper_id_value=paper_id_value)
 
     return prompt
 
@@ -232,9 +622,16 @@ Focus on accuracy and providing actionable insights that help researchers quickl
 def generate_quick_summary_prompt(url, eli12=False):
     """Generate a shorter summary prompt for quick analysis."""
     
+    # Fetch the actual paper text from any supported source
+    paper_text = fetch_paper_text(url)
+    
     eli12_instruction = " Use simple language that anyone can understand - avoid technical jargon and use everyday analogies." if eli12 else ""
     
-    prompt = f"""Please provide a quick 2-minute summary of the academic paper at: {url}{eli12_instruction}
+    if paper_text:
+        prompt = f"""Please provide a quick 2-minute summary of this academic paper:{eli12_instruction}
+
+PAPER CONTENT:
+{paper_text}
 
 Return ONLY a JSON object with this structure:
 
@@ -246,6 +643,15 @@ Return ONLY a JSON object with this structure:
 }}
 
 Keep it concise but informative - perfect for busy researchers who need to quickly assess if this paper is relevant to their work."""
+    else:
+        prompt = f"""I was unable to fetch the content from {url}. Please return an error message in JSON format:
+
+{{
+  "title": "Error: Unable to fetch paper",
+  "quick_summary": "Could not retrieve paper content from the provided URL",
+  "main_finding": "No analysis available",
+  "relevance": "Please check the URL and try again"
+}}"""
 
     return prompt
 
